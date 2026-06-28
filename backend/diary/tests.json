@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "No token rejected",
+      "method": "GET",
+      "path": "/?action=subjects",
+      "expectedStatus": 401
+    },
+    {
+      "name": "Get subjects with token",
+      "method": "GET",
+      "path": "/?action=subjects",
+      "headers": {"X-Auth-Token": "1.faketokenpart"},
+      "expectedStatus": 200,
+      "expectedBody": {"subjects": "array"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

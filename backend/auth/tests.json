@@ -1,0 +1,49 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Register new teacher",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "register",
+        "email": "teacher_test_001@diary.dev",
+        "password": "secret123",
+        "full_name": "Иван Учитель",
+        "role": "teacher"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"token": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login teacher",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "login",
+        "email": "teacher_test_001@diary.dev",
+        "password": "secret123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"token": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login wrong password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "login",
+        "email": "teacher_test_001@diary.dev",
+        "password": "wrong"
+      },
+      "expectedStatus": 401
+    }
+  ]
+}
