@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
+const TYPES = ['Контрольная', 'Самостоятельная', 'Зачёт', 'Дедлайн', 'Другое'];
+const SUBJECTS_LIST = ['Математика', 'Литература', 'Физика', 'История', 'Английский'];
+
 type Grade = { id: number; subject: string; value: number; date: string; note: string };
 type Subject = { name: string; grades: number[]; color: string };
 type Reminder = { id: number; subject: string; title: string; date: string; type: string };
@@ -35,8 +38,27 @@ const gradeColor = (v: number) =>
 
 export default function Index() {
   const [active, setActive] = useState('Обзор');
+  const [reminderList, setReminderList] = useState<Reminder[]>(reminders);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: '', subject: '', type: 'Контрольная', date: '' });
+  const [formError, setFormError] = useState('');
+
   const allGrades = subjects.flatMap((s) => s.grades);
   const overallAvg = avg(allGrades);
+
+  const handleAddReminder = () => {
+    if (!form.title.trim()) { setFormError('Введите название'); return; }
+    if (!form.date) { setFormError('Укажите дату'); return; }
+    const d = new Date(form.date);
+    const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    setReminderList(prev => [
+      ...prev,
+      { id: Date.now(), subject: form.subject || '—', title: form.title.trim(), date: dateStr, type: form.type }
+    ]);
+    setForm({ title: '', subject: '', type: 'Контрольная', date: '' });
+    setFormError('');
+    setShowForm(false);
+  };
 
   const nav = ['Обзор', 'Предметы', 'История', 'Напоминания'];
 
@@ -174,13 +196,76 @@ export default function Index() {
 
         {active === 'Напоминания' && (
           <div className="animate-fade-in space-y-3">
-            {reminders.map((r) => (
+            {reminderList.map((r) => (
               <ReminderRow key={r.id} r={r} />
             ))}
-            <button className="w-full mt-4 border border-dashed border-border rounded-xl py-5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors flex items-center justify-center gap-2">
-              <Icon name="Plus" size={16} />
-              Добавить напоминание
-            </button>
+
+            {!showForm ? (
+              <button
+                onClick={() => setShowForm(true)}
+                className="w-full mt-2 border border-dashed border-border rounded-xl py-5 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors flex items-center justify-center gap-2"
+              >
+                <Icon name="Plus" size={16} />
+                Добавить напоминание
+              </button>
+            ) : (
+              <div className="mt-2 border border-border rounded-xl p-6 space-y-4 animate-fade-in">
+                <p className="text-sm font-medium">Новое напоминание</p>
+
+                <div className="space-y-3">
+                  <input
+                    autoFocus
+                    value={form.title}
+                    onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                    placeholder="Название, например «Контрольная по алгебре»"
+                    className="w-full px-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30"
+                  />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={form.subject}
+                      onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
+                      className="px-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30"
+                    >
+                      <option value="">Предмет</option>
+                      {SUBJECTS_LIST.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+
+                    <select
+                      value={form.type}
+                      onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+                      className="px-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30"
+                    >
+                      {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+
+                  <input
+                    type="date"
+                    value={form.date}
+                    onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                    className="w-full px-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30"
+                  />
+                </div>
+
+                {formError && <p className="text-xs text-red-600">{formError}</p>}
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={handleAddReminder}
+                    className="px-5 py-2 text-sm font-medium bg-foreground text-background rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    Добавить
+                  </button>
+                  <button
+                    onClick={() => { setShowForm(false); setFormError(''); }}
+                    className="px-5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Отмена
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
