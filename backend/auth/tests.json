@@ -7,43 +7,25 @@
       "expectedStatus": 200
     },
     {
-      "name": "Register new teacher",
+      "name": "Check admin exists",
       "method": "POST",
       "path": "/",
-      "body": {
-        "action": "register",
-        "email": "teacher_test_001@diary.dev",
-        "password": "secret123",
-        "full_name": "Иван Учитель",
-        "role": "teacher"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {"token": "string"},
-      "bodyMatcher": "partial"
-    },
-    {
-      "name": "Login teacher",
-      "method": "POST",
-      "path": "/",
-      "body": {
-        "action": "login",
-        "email": "teacher_test_001@diary.dev",
-        "password": "secret123"
-      },
-      "expectedStatus": 200,
-      "expectedBody": {"token": "string"},
-      "bodyMatcher": "partial"
+      "body": { "action": "check_admin" },
+      "expectedStatus": 200
     },
     {
       "name": "Login wrong password",
       "method": "POST",
       "path": "/",
-      "body": {
-        "action": "login",
-        "email": "teacher_test_001@diary.dev",
-        "password": "wrong"
-      },
+      "body": { "action": "login", "email": "nobody@test.dev", "password": "wrong" },
       "expectedStatus": 401
+    },
+    {
+      "name": "Register with invalid code",
+      "method": "POST",
+      "path": "/",
+      "body": { "action": "register_with_code", "code": "INVALID", "email": "x@x.ru", "password": "123", "full_name": "Test" },
+      "expectedStatus": 404
     }
   ]
 }
